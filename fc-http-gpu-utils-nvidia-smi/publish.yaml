@@ -1,8 +1,9 @@
-Type: Application
+Edition: 3.0.0
+Type: Project
 Name: fc3-http-gpu-utils-nvidia-smi
 Provider:
   - 阿里云
-Version: 0.0.2
+Version: 0.0.3
 Description: 快速检测阿里云函数计算GPU实例的GPU运行环境(fc3.0)
 HomePage: https://github.com/devsapp/start-fc-gpu/tree/v3
 Tags:
@@ -11,12 +12,12 @@ Tags:
   - 人工智能
   - GPU
 Category: 人工智能
+Organization: 阿里云函数计算（FC）
 Service:
   函数计算:
     Authorities:
-      - AliyunFCFullAccess
-      - AliyunContainerRegistryFullAccess
-    Runtime: custom container
+      - 创建函数
+Effective: Public
 Parameters:
   type: object
   additionalProperties: false # 不允许增加其他属性
