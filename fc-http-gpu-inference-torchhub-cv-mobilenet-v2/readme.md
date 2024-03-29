@@ -1,14 +1,14 @@
-# fc-http-gpu-inference-torchhub-cv-mobilenet-v2 帮助文档
+# fc3-http-gpu-inference-torchhub-cv-mobilenet-v2 帮助文档
 
 <p align="center" class="flex justify-center">
     <a href="https://www.serverless-devs.com" class="ml-1">
-    <img src="http://editor.devsapp.cn/icon?package=fc-http-gpu-inference-torchhub-cv-mobilenet-v2&type=packageType">
+    <img src="http://editor.devsapp.cn/icon?package=fc3-http-gpu-inference-torchhub-cv-mobilenet-v2&type=packageType">
   </a>
-  <a href="http://www.devsapp.cn/details.html?name=fc-http-gpu-inference-torchhub-cv-mobilenet-v2" class="ml-1">
-    <img src="http://editor.devsapp.cn/icon?package=fc-http-gpu-inference-torchhub-cv-mobilenet-v2&type=packageVersion">
+  <a href="http://www.devsapp.cn/details.html?name=fc3-http-gpu-inference-torchhub-cv-mobilenet-v2" class="ml-1">
+    <img src="http://editor.devsapp.cn/icon?package=fc3-http-gpu-inference-torchhub-cv-mobilenet-v2&type=packageVersion">
   </a>
-  <a href="http://www.devsapp.cn/details.html?name=fc-http-gpu-inference-torchhub-cv-mobilenet-v2" class="ml-1">
-    <img src="http://editor.devsapp.cn/icon?package=fc-http-gpu-inference-torchhub-cv-mobilenet-v2&type=packageDownload">
+  <a href="http://www.devsapp.cn/details.html?name=fc3-http-gpu-inference-torchhub-cv-mobilenet-v2" class="ml-1">
+    <img src="http://editor.devsapp.cn/icon?package=fc3-http-gpu-inference-torchhub-cv-mobilenet-v2&type=packageDownload">
   </a>
 </p>
 
@@ -42,20 +42,15 @@
 
 <appcenter>
 
-- :fire: 通过 [Serverless 应用中心](https://fcnext.console.aliyun.com/applications/create?template=fc-http-gpu-inference-torchhub-cv-mobilenet-v2) ，
-[![Deploy with Severless Devs](https://img.alicdn.com/imgextra/i1/O1CN01w5RFbX1v45s8TIXPz_!!6000000006118-55-tps-95-28.svg)](https://fcnext.console.aliyun.com/applications/create?template=fc-http-gpu-inference-torchhub-cv-mobilenet-v2)  该应用。 
+- :fire: 通过 [Serverless 应用中心](https://fcnext.console.aliyun.com/applications/create?template=fc3-http-gpu-inference-torchhub-cv-mobilenet-v2) ，
+[![Deploy with Severless Devs](https://img.alicdn.com/imgextra/i1/O1CN01w5RFbX1v45s8TIXPz_!!6000000006118-55-tps-95-28.svg)](https://fcnext.console.aliyun.com/applications/create?template=fc3-http-gpu-inference-torchhub-cv-mobilenet-v2)  该应用。 
 
 </appcenter>
 
 - 通过 [Serverless Devs Cli](https://www.serverless-devs.com/serverless-devs/install) 进行部署：
     - [安装 Serverless Devs Cli 开发者工具](https://www.serverless-devs.com/serverless-devs/install) ，并进行[授权信息配置](https://www.serverless-devs.com/fc/config) ；
-    - 初始化项目：`s init fc-http-gpu-inference-torchhub-cv-mobilenet-v2 -d fc-http-gpu-inference-torchhub-cv-mobilenet-v2`   
-    - 进入项目，并进行项目部署：`cd fc-http-gpu-inference-torchhub-cv-mobilenet-v2 && s deploy -y`
-    - 检查函数的镜像加速状态:
-        - 方式1：`s cli fc api GetFunction -a default --region cn-shenzhen --path '{"serviceName":"fc-http-gpu-inference-torchhub-cv-mobilenet-v2-service","functionName":"fc-http-gpu-inference-torchhub-cv-mobilenet-v2-function"}'` 注意：请将如上default帐号、地域、服务名、函数名替换为
-您的项目实际值
-        - 方式2：登陆阿里云函数计算控制台，查看该函数的详情页面，确保`镜像加速准备状态`为`可用`
-        - ***重要说明：请务必在镜像加速状态完成后进行函数调用，函数计算平台将基于镜像加速技术为您提供大镜像函数调用的冷启动最佳体验；镜像加速状态完成前的函数调用将遭遇冷启动耗时***：
+    - 初始化项目：`s init fc3-http-gpu-inference-torchhub-cv-mobilenet-v2 -d fc3-http-gpu-inference-torchhub-cv-mobilenet-v2`   
+    - 进入项目，并进行项目部署：`cd fc3-http-gpu-inference-torchhub-cv-mobilenet-v2 && s deploy -y`
     - 测试项目：
         - 通过脚本调用：`python3 ./code/test/client.py http://{your_function_http_endpoint}/invoke ./code/test/img/dog.jpg`
         - 通过curl调用：`curl -v -X POST -H "Content-Type:application/octet-stream" --data-binary "@./code/test/img/cat.jpg" "http://{your_function_http_endpoint}/invoke"`
