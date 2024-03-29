@@ -24,7 +24,7 @@ resources:
       runtime: custom-container
       internetAccess: true
       customContainerConfig:
-        image: '{{ acrRegistry }}'
+        image: registry.${vars.region}.aliyuncs.com/serverless_devs/fc-http-gpu-inference-torchhub-cv-mobilenet-v2:latest
         port: 9000
       code: ./code
       triggers:
