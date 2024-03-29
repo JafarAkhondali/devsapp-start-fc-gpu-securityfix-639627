@@ -28,10 +28,10 @@ jobs:
       - name: s registry login & publish fc-http-gpu-utils-nvidia-smi
         run: |
           s registry login --token ${{ secrets.alibaba_registry_v3_publish_token }}
-          s registry publish
+          s registry publish --silent
         working-directory: fc-http-gpu-utils-nvidia-smi
       - name: s registry login & publish fc-http-gpu-inference-torchhub-cv-mobilenet-v2
         run: |
           s registry login --token ${{ secrets.alibaba_registry_v3_publish_token }}
-          s registry publish
+          s registry publish --silent
         working-directory: fc-http-gpu-inference-torchhub-cv-mobilenet-v2
