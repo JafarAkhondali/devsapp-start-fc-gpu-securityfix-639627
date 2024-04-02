@@ -35,3 +35,8 @@ jobs:
           s registry login --token ${{ secrets.alibaba_registry_v3_publish_token }}
           s registry publish
         working-directory: fc-http-gpu-inference-torchhub-cv-mobilenet-v2
+      - name: s registry login & publish fc-http-gpu-inference-modelscope-cv-ofa-visual-grounding-refcoco
+        run: |
+          s registry login --token ${{ secrets.alibaba_registry_v3_publish_token }}
+          s registry publish
+        working-directory: fc-http-gpu-inference-modelscope-cv-ofa-visual-grounding-refcoco
