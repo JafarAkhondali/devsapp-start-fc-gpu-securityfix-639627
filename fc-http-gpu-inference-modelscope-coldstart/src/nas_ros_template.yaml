@@ -1,0 +1,300 @@
+ROSTemplateFormatVersion: "2015-09-01"
+Parameters:
+  ZoneID:
+    Type: String
+    Description: zone id
+  FuncNumber:
+    Type: String
+    Description: zone id
+Conditions:
+  hasFunc2:
+    Fn::Or:
+      - Fn::Equals:
+        - Ref: FuncNumber
+        - "2"
+      - Fn::Equals:
+        - Ref: FuncNumber
+        - "3"
+      - Fn::Equals:
+        - Ref: FuncNumber
+        - "4"
+      - Fn::Equals:
+        - Ref: FuncNumber
+        - "5"
+      - Fn::Equals:
+        - Ref: FuncNumber
+        - "6"
+      - Fn::Equals:
+        - Ref: FuncNumber
+        - "7"
+      - Fn::Equals:
+        - Ref: FuncNumber
+        - "8"
+  hasFunc3:
+    Fn::Or:
+      - Fn::Equals:
+        - Ref: FuncNumber
+        - "3"
+      - Fn::Equals:
+        - Ref: FuncNumber
+        - "4"
+      - Fn::Equals:
+        - Ref: FuncNumber
+        - "5"
+      - Fn::Equals:
+        - Ref: FuncNumber
+        - "6"
+      - Fn::Equals:
+        - Ref: FuncNumber
+        - "7"
+      - Fn::Equals:
+        - Ref: FuncNumber
+        - "8"
+  hasFunc4:
+    Fn::Or:
+      - Fn::Equals:
+        - Ref: FuncNumber
+        - "4"
+      - Fn::Equals:
+        - Ref: FuncNumber
+        - "5"
+      - Fn::Equals:
+        - Ref: FuncNumber
+        - "6"
+      - Fn::Equals:
+        - Ref: FuncNumber
+        - "7"
+      - Fn::Equals:
+        - Ref: FuncNumber
+        - "8"
+  hasFunc5:
+    Fn::Or:
+      - Fn::Equals:
+        - Ref: FuncNumber
+        - "5"
+      - Fn::Equals:
+        - Ref: FuncNumber
+        - "6"
+      - Fn::Equals:
+        - Ref: FuncNumber
+        - "7"
+      - Fn::Equals:
+        - Ref: FuncNumber
+        - "8"
+  hasFunc6:
+    Fn::Or:
+      - Fn::Equals:
+        - Ref: FuncNumber
+        - "6"
+      - Fn::Equals:
+        - Ref: FuncNumber
+        - "7"
+      - Fn::Equals:
+        - Ref: FuncNumber
+        - "8"
+  hasFunc7:
+    Fn::Or:
+      - Fn::Equals:
+        - Ref: FuncNumber
+        - "7"
+      - Fn::Equals:
+        - Ref: FuncNumber
+        - "8"
+  hasFunc8:
+    Fn::Equals:
+      - Ref: FuncNumber
+      - "8"
+Resources:
+  Modelscope-NAS-1:
+    Type: "ALIYUN::NAS::FileSystem"
+    Properties:
+      FileSystemType: standard
+      ProtocolType: NFS
+      StorageType: Performance
+      EncryptType: 0
+      Capacity: 100
+      ZoneId:
+        Ref: ZoneID
+  Modelscope-NAS-2:
+    Type: "ALIYUN::NAS::FileSystem"
+    Condition: hasFunc2
+    Properties:
+      FileSystemType: standard
+      ProtocolType: NFS
+      StorageType: Performance
+      EncryptType: 0
+      Capacity: 100
+      ZoneId:
+        Ref: ZoneID
+  Modelscope-NAS-3:
+    Type: "ALIYUN::NAS::FileSystem"
+    Condition: hasFunc3
+    Properties:
+      FileSystemType: standard
+      ProtocolType: NFS
+      StorageType: Performance
+      EncryptType: 0
+      Capacity: 100
+      ZoneId:
+        Ref: ZoneID
+  Modelscope-NAS-4:
+    Type: "ALIYUN::NAS::FileSystem"
+    Condition: hasFunc4
+    Properties: 
+      FileSystemType: standard
+      ProtocolType: NFS
+      StorageType: Performance
+      EncryptType: 0
+      Capacity: 100
+      ZoneId:
+        Ref: ZoneID
+  Modelscope-NAS-5:
+    Type: "ALIYUN::NAS::FileSystem"
+    Condition: hasFunc5
+    Properties:
+      FileSystemType: standard
+      ProtocolType: NFS
+      StorageType: Performance
+      EncryptType: 0
+      Capacity: 100
+      ZoneId:
+        Ref: ZoneID
+  Modelscope-NAS-6:
+    Type: "ALIYUN::NAS::FileSystem"
+    Condition: hasFunc6
+    Properties:
+      FileSystemType: standard
+      ProtocolType: NFS
+      StorageType: Performance
+      EncryptType: 0
+      Capacity: 100
+      ZoneId:
+        Ref: ZoneID
+  Modelscope-NAS-7:
+    Type: "ALIYUN::NAS::FileSystem"
+    Condition: hasFunc7
+    Properties:
+      FileSystemType: standard
+      ProtocolType: NFS
+      StorageType: Performance
+      EncryptType: 0
+      Capacity: 100
+      ZoneId:
+        Ref: ZoneID
+  Modelscope-NAS-8:
+    Type: "ALIYUN::NAS::FileSystem"
+    Condition: hasFunc8
+    Properties: 
+      FileSystemType: standard
+      ProtocolType: NFS
+      StorageType: Performance
+      EncryptType: 0
+      Capacity: 100
+      ZoneId:
+        Ref: ZoneID
+          
+Outputs:
+  NASId1:
+    Value:
+      "Fn::GetAtt":
+        - Modelscope-NAS-1
+        - FileSystemId
+  NASId2:
+    Value:
+      Fn::If:
+        - hasFunc2
+        - "Fn::GetAtt":
+            - Modelscope-NAS-2
+            - FileSystemId
+        - "none"
+  NASId3:
+    Value:
+      Fn::If:
+        - hasFunc3
+        - "Fn::GetAtt":
+            - Modelscope-NAS-3
+            - FileSystemId
+        - "none"
+  NASId4:
+    Value:
+      Fn::If:
+        - hasFunc4
+        - "Fn::GetAtt":
+            - Modelscope-NAS-4
+            - FileSystemId
+        - "none"
+  NASId5:
+    Value:
+      Fn::If:
+        - hasFunc5
+        - "Fn::GetAtt":
+            - Modelscope-NAS-5
+            - FileSystemId
+        - "none"
+  NASId6:
+    Value:
+      Fn::If:
+        - hasFunc6
+        - "Fn::GetAtt":
+            - Modelscope-NAS-6
+            - FileSystemId
+        - "none"
+  NASId7:
+    Value:
+      Fn::If:
+        - hasFunc7
+        - "Fn::GetAtt":
+            - Modelscope-NAS-7
+            - FileSystemId
+        - "none"
+  NASId8:
+    Value:
+      Fn::If:
+        - hasFunc8
+        - "Fn::GetAtt":
+            - Modelscope-NAS-8
+            - FileSystemId
+        - "none"
+  funcTail2:    # actual name of function#2 (if pp_size < 2, let name be the same as function#1 so that the configuration of function #2 will be overrided)
+    Value:
+      Fn::If:
+        - hasFunc2
+        - "-1"
+        - "-0"
+  funcTail3:    # actual name of function#3
+    Value:
+      Fn::If:
+        - hasFunc3
+        - "-2"
+        - "-0"
+  funcTail4:    # actual name of function#4
+    Value:
+      Fn::If:
+        - hasFunc4
+        - "-3"
+        - "-0"
+  funcTail5:    # actual name of function#5
+    Value:
+      Fn::If:
+        - hasFunc5
+        - "-4"
+        - "-0"
+  funcTail6:    # actual name of function#6
+    Value:
+      Fn::If:
+        - hasFunc6
+        - "-5"
+        - "-0"
+  funcTail7:    # actual name of function#7
+    Value:
+      Fn::If:
+        - hasFunc7
+        - "-6"
+        - "-0"
+  funcTail8:    # actual name of function#8
+    Value:
+      Fn::If:
+        - hasFunc8
+        - "-7"
+        - "-0"
+  
