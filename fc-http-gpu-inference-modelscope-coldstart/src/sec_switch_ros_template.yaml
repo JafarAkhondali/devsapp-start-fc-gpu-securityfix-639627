@@ -1,0 +1,37 @@
+ROSTemplateFormatVersion: "2015-09-01"
+Parameters:
+  VpcID:
+    Type: String
+    Description: vpc id
+  ZoneID:
+    Type: String
+    Description: zone id
+Resources:
+  MY-SEC:
+    Type: "ALIYUN::ECS::SecurityGroup"
+    Properties:
+      SecurityGroupName: modelscope-security-group
+      SecurityGroupType: normal
+      VpcId:
+        Ref: VpcID
+  MY-SWITCH:
+    Type: "ALIYUN::ECS::VSwitch"
+    Properties:
+      VSwitchName: modelscope-switch
+      CidrBlock: 172.16.0.0/16
+      ZoneId:
+        Ref: ZoneID
+      VpcId:
+        Ref: VpcID
+Outputs:
+  securityGroupId:
+    Value:
+      "Fn::GetAtt":
+        - MY-SEC
+        - SecurityGroupId
+  switchId:
+    Value:
+      "Fn::GetAtt":
+        - MY-SWITCH
+        - VSwitchId
+  

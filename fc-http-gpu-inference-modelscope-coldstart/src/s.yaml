@@ -1,0 +1,661 @@
+edition: 3.0.0
+name: modelscope-coldstart
+# access是当前应用所需要的密钥信息配置：
+# 密钥配置请参见：https://www.serverless-devs.com/serverless-devs/command/config
+# 密钥使用请参见：https://www.serverless-devs.com/serverless-devs/tool
+access: {{ access }}
+
+vars: # 全局变量
+  region: {{ region }}
+  version: fc-deploy-common-v17
+  name: modelscope # {{ name }}
+  description: "modelscope deployment using multiple functions"
+  ppSize: "{{ funcNumber }}"
+  destppSize: "{{ destFuncNumber }}"
+  role: {{ roleArn }}
+  logConfig: auto
+  vCPU: 4
+  gpuInstanceType: fc.gpu.tesla.1 # {{ gpuInstanceType }}
+  gpuMemorySize: 16384 # {{ gpuMemorySize }}
+  memorySize: 32768 # {{ memorySize }}
+  concurrency: 16
+  modelID: {{ modelId }}
+  modelTask: chat
+  modelRevision: {{ modelRevision }}
+  localModelCache: /mnt/model-cache
+  CommDir: /mnt/comm
+  vpcConfig:
+    vpcId: ${resources.vpc-ros-stack.output.VpcID}
+    securityGroupId: ${resources.sec-switch-ros-stack.output.securityGroupId}
+    vSwitchIds:
+      - ${resources.sec-switch-ros-stack.output.switchId}
+  nasServerAddr-0: ${resources.mount-ros-stack.output.MT1}:/
+  nasServerAddr-1: ${resources.mount-ros-stack.output.MT2}:/
+  nasServerAddr-2: ${resources.mount-ros-stack.output.MT3}:/
+  nasServerAddr-3: ${resources.mount-ros-stack.output.MT4}:/
+  nasServerAddr-4: ${resources.mount-ros-stack.output.MT5}:/
+  nasServerAddr-5: ${resources.mount-ros-stack.output.MT6}:/
+  nasServerAddr-6: ${resources.mount-ros-stack.output.MT7}:/
+  nasServerAddr-7: ${resources.mount-ros-stack.output.MT8}:/
+
+resources:
+  vpc-ros-stack:
+    component: ros
+    props:
+      region: ${vars.region}
+      name: modelscope-vpc-ros-stack
+      template: ./vpc_ros_template.yaml
+  sec-switch-ros-stack:
+    component: ros
+    props:
+      region: ${vars.region}
+      name: modelscope-sec-switch-ros-stack
+      template: ./sec_switch_ros_template.yaml
+      parameters:
+        VpcID: ${resources.vpc-ros-stack.output.VpcID}
+        ZoneID: ${resources.vpc-ros-stack.output.ZoneID}
+  nas-ros-stack:
+    component: ros
+    props:
+      region: ${vars.region}
+      name: modelscope-nas-ros-stack
+      template: ./nas_ros_template.yaml
+      parameters:
+        ZoneID: ${resources.vpc-ros-stack.output.ZoneID}
+        FuncNumber: ${vars.ppSize}
+  mount-ros-stack:
+    component: ros
+    props:
+      region: ${vars.region}
+      name: modelscope-mount-ros-stack
+      template: ./mount_ros_template.yaml
+      parameters:
+        FileSystemId1: ${resources.nas-ros-stack.output.NASId1}
+        FileSystemId2: ${resources.nas-ros-stack.output.NASId2}
+        FileSystemId3: ${resources.nas-ros-stack.output.NASId3}
+        FileSystemId4: ${resources.nas-ros-stack.output.NASId4}
+        FileSystemId5: ${resources.nas-ros-stack.output.NASId5}
+        FileSystemId6: ${resources.nas-ros-stack.output.NASId6}
+        FileSystemId7: ${resources.nas-ros-stack.output.NASId7}
+        FileSystemId8: ${resources.nas-ros-stack.output.NASId8}
+        VSwitchId: ${resources.sec-switch-ros-stack.output.switchId}
+        VpcId: ${resources.vpc-ros-stack.output.VpcID}
+        SecurityGroupId: ${resources.sec-switch-ros-stack.output.securityGroupId}
+        FuncNumber: ${vars.ppSize}
+  model_download_func_0:
+    component: 'fc3'
+    actions:
+      complete-deploy:
+        - component: fc3@0.0.23 invoke
+    props:
+      region: ${vars.region}
+      role: ${vars.role}
+      functionName: ${vars.name}-model-download-func-0
+      description: initialize model into nas storage
+      handler: index.handler
+      timeout: 86400
+      memorySize: 32768
+      cpu: 8
+      diskSize: 10240
+      instanceType: e1
+      instanceConcurrency: 1
+      runtime: python3.10
+      layers:
+        - acs:fc:cn-shanghai:official:layers/Python310-PyTorch2x/versions/1
+        - acs:fc:cn-shanghai:1142606162421667:layers/modelscope/versions/4
+        - acs:fc:cn-shanghai:1142606162421667:layers/python_accelerate/versions/2
+      code: ./model_download
+      internetAccess: true
+      vpcConfig: ${vars.vpcConfig}
+      nasConfig:
+        mountPoints:
+          - serverAddr: ${vars.nasServerAddr-0}model-cache
+            mountDir: /mnt/model-cache-0
+          - serverAddr: ${vars.nasServerAddr-1}model-cache
+            mountDir: /mnt/model-cache-1
+          - serverAddr: ${vars.nasServerAddr-2}model-cache
+            mountDir: /mnt/model-cache-2
+          - serverAddr: ${vars.nasServerAddr-3}model-cache
+            mountDir: /mnt/model-cache-3
+      logConfig: ${vars.logConfig}
+      environmentVariables:
+        MODEL_ID: ${vars.modelID}
+        MODEL_VERSION: ${vars.modelRevision}
+        MODELSCOPE_CACHE: ${vars.localModelCache}
+        MODELSCOPE_TOKEN: {{ accessToken }}
+        MODELSCOPE_DOMAIN: www.modelscope.cn # {{ modelCache }}
+        PP_SIZE: ${vars.ppSize}
+        DEST_PP_SIZE: ${vars.destppSize}
+        MODEL_PART: "0"
+  model_download_func_1:
+    component: 'fc3'
+    actions:
+      complete-deploy:
+        - component: fc3@0.0.23 invoke
+    props:
+      region: ${vars.region}
+      role: ${vars.role}
+      functionName: ${vars.name}-model-download-func-1
+      description: initialize model into nas storage
+      handler: index.handler
+      timeout: 86400
+      memorySize: 32768
+      cpu: 8
+      diskSize: 10240
+      instanceType: e1
+      instanceConcurrency: 1
+      runtime: python3.10
+      layers:
+        - acs:fc:cn-shanghai:official:layers/Python310-PyTorch2x/versions/1
+        - acs:fc:cn-shanghai:1142606162421667:layers/modelscope/versions/4
+        - acs:fc:cn-shanghai:1142606162421667:layers/python_accelerate/versions/2
+      code: ./model_download
+      internetAccess: true
+      vpcConfig: ${vars.vpcConfig}
+      nasConfig:
+        mountPoints:
+          - serverAddr: ${vars.nasServerAddr-0}model-cache
+            mountDir: /mnt/model-cache-0
+          - serverAddr: ${vars.nasServerAddr-4}model-cache
+            mountDir: /mnt/model-cache-4
+          - serverAddr: ${vars.nasServerAddr-5}model-cache
+            mountDir: /mnt/model-cache-5
+          - serverAddr: ${vars.nasServerAddr-6}model-cache
+            mountDir: /mnt/model-cache-6
+          - serverAddr: ${vars.nasServerAddr-7}model-cache
+            mountDir: /mnt/model-cache-7
+      logConfig: ${vars.logConfig}
+      environmentVariables:
+        MODEL_ID: ${vars.modelID}
+        MODEL_VERSION: ${vars.modelRevision}
+        MODELSCOPE_CACHE: ${vars.localModelCache}
+        MODELSCOPE_TOKEN: {{ accessToken }}
+        MODELSCOPE_DOMAIN: www.modelscope.cn # {{ modelCache }}
+        PP_SIZE: ${vars.ppSize}
+        DEST_PP_SIZE: ${vars.destppSize}
+        MODEL_PART: "1"
+  app_func_7:
+    component: 'fc3'
+    props:
+      region: ${vars.region}
+      role: ${vars.role}
+      functionName: ${vars.name}-model-app-func${resources.nas-ros-stack.output.funcTail8}
+      description: Deploy ModelScope applications of model (stage 7)
+      handler: /usr/src/app/app.handler
+      timeout: 1800
+      memorySize: ${vars.memorySize}
+      cpu: ${vars.vCPU}
+      diskSize: 512
+      gpuConfig:
+        gpuMemorySize: ${vars.gpuMemorySize}
+        gpuType: ${vars.gpuInstanceType}
+      instanceConcurrency: ${vars.concurrency}
+      runtime: custom-container
+      initializer: 'true'
+      initializationTimeout: 300
+      internetAccess: true
+      vpcConfig: ${vars.vpcConfig}
+      logConfig: ${vars.logConfig}
+      nasConfig:
+        mountPoints:
+          - serverAddr: ${vars.nasServerAddr-7}model-cache
+            mountDir: ${vars.localModelCache}
+          - serverAddr: ${vars.nasServerAddr-0}
+            mountDir: ${vars.CommDir}
+      customContainerConfig:
+        image: registry.cn-shanghai.aliyuncs.com/image_lch/modelscope-vllm:v1
+        port: 9000
+      environmentVariables:
+        MODEL_ID: ${vars.modelID}
+        MODELSCOPE_CACHE: ${vars.localModelCache}
+        TASK: ${vars.modelTask}
+        PP_RANK: '7'
+        PP_SIZE: ${vars.ppSize}
+        DEST_PP_SIZE: ${vars.destppSize}
+        FUNC_NAME_BASE: ${vars.name}-model-app-func
+        COMM_DIR: ${vars.CommDir}
+      triggers:
+        - triggerName: httpTrigger
+          triggerType: http
+          description: 'httpTriggerModel'
+          qualifier: LATEST
+          triggerConfig:
+            authType: anonymous
+            disableURLInternet: false
+            methods:
+              - GET
+              - POST
+              - PUT
+  app_func_6:
+    component: 'fc3'
+    props:
+      region: ${vars.region}
+      role: ${vars.role}
+      functionName: ${vars.name}-model-app-func${resources.nas-ros-stack.output.funcTail7}
+      description: Deploy ModelScope applications of model (stage 6)
+      handler: /usr/src/app/app.handler
+      timeout: 1800
+      memorySize: ${vars.memorySize}
+      cpu: ${vars.vCPU}
+      diskSize: 512
+      gpuConfig:
+        gpuMemorySize: ${vars.gpuMemorySize}
+        gpuType: ${vars.gpuInstanceType}
+      instanceConcurrency: ${vars.concurrency}
+      runtime: custom-container
+      initializer: 'true'
+      initializationTimeout: 300
+      internetAccess: true
+      vpcConfig: ${vars.vpcConfig}
+      logConfig: ${vars.logConfig}
+      nasConfig:
+        mountPoints:
+          - serverAddr: ${vars.nasServerAddr-6}model-cache
+            mountDir: ${vars.localModelCache}
+          - serverAddr: ${vars.nasServerAddr-0}
+            mountDir: ${vars.CommDir}
+      customContainerConfig:
+        image: registry.cn-shanghai.aliyuncs.com/image_lch/modelscope-vllm:v1
+        port: 9000
+      environmentVariables:
+        MODEL_ID: ${vars.modelID}
+        MODELSCOPE_CACHE: ${vars.localModelCache}
+        TASK: ${vars.modelTask}
+        PP_RANK: '6'
+        PP_SIZE: ${vars.ppSize}
+        DEST_PP_SIZE: ${vars.destppSize}
+        FUNC_NAME_BASE: ${vars.name}-model-app-func
+        COMM_DIR: ${vars.CommDir}
+      triggers:
+        - triggerName: httpTrigger
+          triggerType: http
+          description: 'httpTriggerModel'
+          qualifier: LATEST
+          triggerConfig:
+            authType: anonymous
+            disableURLInternet: false
+            methods:
+              - GET
+              - POST
+              - PUT
+  app_func_5:
+    component: 'fc3'
+    props:
+      region: ${vars.region}
+      role: ${vars.role}
+      functionName: ${vars.name}-model-app-func${resources.nas-ros-stack.output.funcTail6}
+      description: Deploy ModelScope applications of model (stage 5)
+      handler: /usr/src/app/app.handler
+      timeout: 1800
+      memorySize: ${vars.memorySize}
+      cpu: ${vars.vCPU}
+      diskSize: 512
+      gpuConfig:
+        gpuMemorySize: ${vars.gpuMemorySize}
+        gpuType: ${vars.gpuInstanceType}
+      instanceConcurrency: ${vars.concurrency}
+      runtime: custom-container
+      initializer: 'true'
+      initializationTimeout: 300
+      internetAccess: true
+      vpcConfig: ${vars.vpcConfig}
+      nasConfig:
+        mountPoints:
+          - serverAddr: ${vars.nasServerAddr-5}model-cache
+            mountDir: ${vars.localModelCache}
+          - serverAddr: ${vars.nasServerAddr-0}
+            mountDir: ${vars.CommDir}
+      logConfig: ${vars.logConfig}
+      customContainerConfig:
+        image: registry.cn-shanghai.aliyuncs.com/image_lch/modelscope-vllm:v1
+        port: 9000
+      environmentVariables:
+        MODEL_ID: ${vars.modelID}
+        MODELSCOPE_CACHE: ${vars.localModelCache}
+        TASK: ${vars.modelTask}
+        PP_RANK: '5'
+        PP_SIZE: ${vars.ppSize}
+        DEST_PP_SIZE: ${vars.destppSize}
+        FUNC_NAME_BASE: ${vars.name}-model-app-func
+        COMM_DIR: ${vars.CommDir}
+      triggers:
+        - triggerName: httpTrigger
+          triggerType: http
+          description: 'httpTriggerModel'
+          qualifier: LATEST
+          triggerConfig:
+            authType: anonymous
+            disableURLInternet: false
+            methods:
+              - GET
+              - POST
+              - PUT
+  app_func_4:
+    component: 'fc3'
+    props:
+      region: ${vars.region}
+      role: ${vars.role}
+      functionName: ${vars.name}-model-app-func${resources.nas-ros-stack.output.funcTail5}
+      description: Deploy ModelScope applications of model (stage 4)
+      handler: /usr/src/app/app.handler
+      timeout: 1800
+      memorySize: ${vars.memorySize}
+      cpu: ${vars.vCPU}
+      diskSize: 512
+      gpuConfig:
+        gpuMemorySize: ${vars.gpuMemorySize}
+        gpuType: ${vars.gpuInstanceType}
+      instanceConcurrency: ${vars.concurrency}
+      runtime: custom-container
+      initializer: 'true'
+      initializationTimeout: 300
+      internetAccess: true
+      vpcConfig: ${vars.vpcConfig}
+      logConfig: ${vars.logConfig}
+      nasConfig: 
+        mountPoints:
+          - serverAddr: ${vars.nasServerAddr-4}model-cache
+            mountDir: ${vars.localModelCache}
+          - serverAddr: ${vars.nasServerAddr-0}
+            mountDir: ${vars.CommDir}
+      customContainerConfig:
+        image: registry.cn-shanghai.aliyuncs.com/image_lch/modelscope-vllm:v1
+        port: 9000
+      environmentVariables:
+        MODEL_ID: ${vars.modelID}
+        MODELSCOPE_CACHE: ${vars.localModelCache}
+        TASK: ${vars.modelTask}
+        PP_RANK: '4'
+        PP_SIZE: ${vars.ppSize}
+        DEST_PP_SIZE: ${vars.destppSize}
+        FUNC_NAME_BASE: ${vars.name}-model-app-func
+        COMM_DIR: ${vars.CommDir}
+      triggers:
+        - triggerName: httpTrigger
+          triggerType: http
+          description: 'httpTriggerModel'
+          qualifier: LATEST
+          triggerConfig:
+            authType: anonymous
+            disableURLInternet: false
+            methods:
+              - GET
+              - POST
+              - PUT
+  app_func_3:
+    component: 'fc3'
+    props:
+      region: ${vars.region}
+      role: ${vars.role}
+      functionName: ${vars.name}-model-app-func${resources.nas-ros-stack.output.funcTail4}
+      description: Deploy ModelScope applications of model (stage 3)
+      handler: /usr/src/app/app.handler
+      timeout: 1800
+      memorySize: ${vars.memorySize}
+      cpu: ${vars.vCPU}
+      diskSize: 512
+      gpuConfig:
+        gpuMemorySize: ${vars.gpuMemorySize}
+        gpuType: ${vars.gpuInstanceType}
+      instanceConcurrency: ${vars.concurrency}
+      runtime: custom-container
+      initializer: 'true'
+      initializationTimeout: 300
+      internetAccess: true
+      vpcConfig: ${vars.vpcConfig}
+      logConfig: ${vars.logConfig}
+      nasConfig:
+        mountPoints:
+          - serverAddr: ${vars.nasServerAddr-3}model-cache
+            mountDir: ${vars.localModelCache}
+          - serverAddr: ${vars.nasServerAddr-0}
+            mountDir: ${vars.CommDir}
+      customContainerConfig:
+        image: registry.cn-shanghai.aliyuncs.com/image_lch/modelscope-vllm:v1
+        port: 9000
+      environmentVariables:
+        MODEL_ID: ${vars.modelID}
+        MODELSCOPE_CACHE: ${vars.localModelCache}
+        TASK: ${vars.modelTask}
+        PP_RANK: '3'
+        PP_SIZE: ${vars.ppSize}
+        DEST_PP_SIZE: ${vars.destppSize}
+        FUNC_NAME_BASE: ${vars.name}-model-app-func
+        COMM_DIR: ${vars.CommDir}
+      triggers:
+        - triggerName: httpTrigger
+          triggerType: http
+          description: 'httpTriggerModel'
+          qualifier: LATEST
+          triggerConfig:
+            authType: anonymous
+            disableURLInternet: false
+            methods:
+              - GET
+              - POST
+              - PUT
+  app_func_2:
+    component: 'fc3'
+    props:
+      region: ${vars.region}
+      role: ${vars.role}
+      functionName: ${vars.name}-model-app-func${resources.nas-ros-stack.output.funcTail3}
+      description: Deploy ModelScope applications of model (stage 2)
+      handler: /usr/src/app/app.handler
+      timeout: 1800
+      memorySize: ${vars.memorySize}
+      cpu: ${vars.vCPU}
+      diskSize: 512
+      gpuConfig:
+        gpuMemorySize: ${vars.gpuMemorySize}
+        gpuType: ${vars.gpuInstanceType}
+      instanceConcurrency: ${vars.concurrency}
+      runtime: custom-container
+      initializer: 'true'
+      initializationTimeout: 300
+      internetAccess: true
+      vpcConfig: ${vars.vpcConfig}
+      logConfig: ${vars.logConfig}
+      nasConfig:
+        mountPoints:
+          - serverAddr: ${vars.nasServerAddr-2}model-cache
+            mountDir: ${vars.localModelCache}
+          - serverAddr: ${vars.nasServerAddr-0}
+            mountDir: ${vars.CommDir}
+      customContainerConfig:
+        image: registry.cn-shanghai.aliyuncs.com/image_lch/modelscope-vllm:v1
+        port: 9000
+      environmentVariables:
+        MODEL_ID: ${vars.modelID}
+        MODELSCOPE_CACHE: ${vars.localModelCache}
+        TASK: ${vars.modelTask}
+        PP_RANK: '2'
+        PP_SIZE: ${vars.ppSize}
+        DEST_PP_SIZE: ${vars.destppSize}
+        FUNC_NAME_BASE: ${vars.name}-model-app-func
+        COMM_DIR: ${vars.CommDir}
+      triggers:
+        - triggerName: httpTrigger
+          triggerType: http
+          description: 'httpTriggerModel'
+          qualifier: LATEST
+          triggerConfig:
+            authType: anonymous
+            disableURLInternet: false
+            methods:
+              - GET
+              - POST
+              - PUT
+  app_func_1:
+    component: 'fc3'
+    props:
+      region: ${vars.region}
+      role: ${vars.role}
+      functionName: ${vars.name}-model-app-func${resources.nas-ros-stack.output.funcTail2}
+      description: Deploy ModelScope applications of model (stage 1)
+      handler: /usr/src/app/app.handler
+      timeout: 1800
+      memorySize: ${vars.memorySize}
+      cpu: ${vars.vCPU}
+      diskSize: 512
+      gpuConfig:
+        gpuMemorySize: ${vars.gpuMemorySize}
+        gpuType: ${vars.gpuInstanceType}
+      instanceConcurrency: ${vars.concurrency}
+      runtime: custom-container
+      initializer: 'true'
+      initializationTimeout: 300
+      internetAccess: true
+      vpcConfig: ${vars.vpcConfig}
+      nasConfig:
+        mountPoints:
+          - serverAddr: ${vars.nasServerAddr-1}model-cache
+            mountDir: ${vars.localModelCache}
+          - serverAddr: ${vars.nasServerAddr-0}
+            mountDir: ${vars.CommDir}
+      logConfig: ${vars.logConfig}
+      customContainerConfig:
+        image: registry.cn-shanghai.aliyuncs.com/image_lch/modelscope-vllm:v1
+        port: 9000
+      environmentVariables:
+        MODEL_ID: ${vars.modelID}
+        MODELSCOPE_CACHE: ${vars.localModelCache}
+        TASK: ${vars.modelTask}
+        PP_RANK: '1'
+        PP_SIZE: ${vars.ppSize}
+        DEST_PP_SIZE: ${vars.destppSize}
+        FUNC_NAME_BASE: ${vars.name}-model-app-func
+        COMM_DIR: ${vars.CommDir}
+      triggers:
+        - triggerName: httpTrigger
+          triggerType: http
+          description: 'httpTriggerModel'
+          qualifier: LATEST
+          triggerConfig:
+            authType: anonymous
+            disableURLInternet: false
+            methods:
+              - GET
+              - POST
+              - PUT
+  app_func_0:
+    component: 'fc3'
+    props:
+      region: ${vars.region}
+      role: ${vars.role}
+      functionName: ${vars.name}-model-app-func-0
+      description: Deploy ModelScope applications of model (stage 0)
+      handler: /usr/src/app/app.handler
+      timeout: 1800
+      memorySize: ${vars.memorySize}
+      cpu: ${vars.vCPU}
+      diskSize: 512
+      gpuConfig:
+        gpuMemorySize: ${vars.gpuMemorySize}
+        gpuType: ${vars.gpuInstanceType}
+      instanceConcurrency: ${vars.concurrency}
+      runtime: custom-container
+      initializer: 'true'
+      initializationTimeout: 300
+      internetAccess: true
+      vpcConfig: ${vars.vpcConfig}
+      logConfig: ${vars.logConfig}
+      nasConfig: 
+        mountPoints:
+          - serverAddr: ${vars.nasServerAddr-0}
+            mountDir: ${vars.localModelCache}
+      customContainerConfig:
+        image: registry.cn-shanghai.aliyuncs.com/image_lch/modelscope-vllm:v1
+        port: 9000
+      environmentVariables:
+        MODEL_ID: ${vars.modelID}
+        MODELSCOPE_CACHE: ${vars.localModelCache}/model-cache
+        TASK: ${vars.modelTask}
+        PP_RANK: '0'
+        PP_SIZE: ${vars.ppSize}
+        DEST_PP_SIZE: ${vars.destppSize}
+        FUNC_NAME_BASE: ${vars.name}-model-app-func
+        COMM_DIR: ${vars.localModelCache}
+      triggers:
+        - triggerName: httpTrigger
+          triggerType: http
+          description: 'httpTriggerModel'
+          qualifier: LATEST
+          triggerConfig:
+            authType: anonymous
+            disableURLInternet: false
+            methods:
+              - GET
+              - POST
+              - PUT
+  model_ui_func:
+    component: 'fc3'
+    props:
+      region: ${vars.region}
+      role: ${vars.role}
+      functionName: ${vars.name}-model-ui-func
+      description: model ui web page
+      handler: index.handler
+      timeout: 600
+      memorySize: 1024
+      instanceType: e1
+      runtime: custom.debian10
+      code: ./model_ui
+      instanceConcurrency: ${vars.concurrency}
+      internetAccess: true
+      logConfig: auto
+      environmentVariables:
+        MODEL_ID: ${vars.modelID}
+        MODEL_VERSION: ${vars.modelRevision}
+        TASK: ${vars.modelTask}
+        PATH: /opt/python3.9/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/bin
+        PYTHONPATH: /opt/python
+        API_URL: ${resources.app_func_0.output.url.system_intranet_url}
+        API_URL_1: ${resources.app_func_1.output.url.system_intranet_url}
+        API_URL_2: ${resources.app_func_2.output.url.system_intranet_url}
+        API_URL_3: ${resources.app_func_3.output.url.system_intranet_url}
+        API_URL_4: ${resources.app_func_4.output.url.system_intranet_url}
+        API_URL_5: ${resources.app_func_5.output.url.system_intranet_url}
+        API_URL_6: ${resources.app_func_6.output.url.system_intranet_url}
+        API_URL_7: ${resources.app_func_7.output.url.system_intranet_url}
+        PP_SIZE: ${vars.ppSize}
+        DEST_PP_SIZE: ${vars.destppSize}
+      customRuntimeConfig:
+        command:
+          - python3.9
+        args:
+          - "app.py"
+        port: 7860
+      layers:
+        - acs:fc:${vars.region}:official:layers/Python39/versions/2
+        - acs:fc:cn-shanghai:1142606162421667:layers/python39-gradio/versions/4
+      triggers:
+        - triggerName: httpTrigger
+          triggerType: http
+          description: 'httpTriggerUI'
+          qualifier: LATEST
+          triggerConfig:
+            authType: anonymous
+            disableURLInternet: false
+            methods:
+              - GET
+              - POST
+              - PUT
+
+  model_ui_func_domain:
+    component: 'fc3-domain'
+    props:
+      region: ${vars.region}
+      domainName: auto
+      protocol: HTTP
+      routeConfig:
+        routes:
+          - functionName: ${resources.model_ui_func.props.functionName}
+            methods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            path: /*
+            qualifier: LATEST

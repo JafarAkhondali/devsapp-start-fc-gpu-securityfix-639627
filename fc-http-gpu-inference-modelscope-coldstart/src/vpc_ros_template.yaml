@@ -1,0 +1,24 @@
+ROSTemplateFormatVersion: "2015-09-01"
+Resources:
+  MY-VPC:
+    Type: "ALIYUN::ECS::VPC"
+    Properties:
+      VpcName: modelscope-vpc
+  MY-Zone:
+    Type: "DATASOURCE::NAS::Zones"
+    Properties:
+      FileSystemType: standard
+Outputs:
+  VpcID:
+    Value:
+      "Fn::GetAtt":
+        - MY-VPC
+        - VpcId
+  ZoneID:
+    Value:
+      !Select
+      - '0'
+      - !GetAtt
+        - MY-Zone
+        - ZoneIds
+  
