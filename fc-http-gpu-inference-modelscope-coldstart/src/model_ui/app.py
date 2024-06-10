@@ -87,6 +87,9 @@ def chat_setup():
             raise gr.Error("Missing necessary input message, please retry.")
         do_warmup()
 
+        if len(history) == 0:
+            messages = []
+
         messages.append({"role": "user", "content": message})
         start_time = time.time()
         chat = client.chat.completions.create(

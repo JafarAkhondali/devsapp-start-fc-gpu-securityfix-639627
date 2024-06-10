@@ -13,7 +13,6 @@ vars: # 全局变量
   ppSize: "{{ funcNumber }}"
   destppSize: "{{ destFuncNumber }}"
   role: {{ roleArn }}
-  logConfig: auto
   vCPU: 4
   gpuInstanceType: fc.gpu.tesla.1 # {{ gpuInstanceType }}
   gpuMemorySize: 16384 # {{ gpuMemorySize }}
@@ -117,7 +116,6 @@ resources:
             mountDir: /mnt/model-cache-2
           - serverAddr: ${vars.nasServerAddr-3}model-cache
             mountDir: /mnt/model-cache-3
-      logConfig: ${vars.logConfig}
       environmentVariables:
         MODEL_ID: ${vars.modelID}
         MODEL_VERSION: ${vars.modelRevision}
@@ -164,7 +162,6 @@ resources:
             mountDir: /mnt/model-cache-6
           - serverAddr: ${vars.nasServerAddr-7}model-cache
             mountDir: /mnt/model-cache-7
-      logConfig: ${vars.logConfig}
       environmentVariables:
         MODEL_ID: ${vars.modelID}
         MODEL_VERSION: ${vars.modelRevision}
@@ -195,12 +192,11 @@ resources:
       initializationTimeout: 300
       internetAccess: true
       vpcConfig: ${vars.vpcConfig}
-      logConfig: ${vars.logConfig}
       nasConfig:
         mountPoints:
           - serverAddr: ${vars.nasServerAddr-7}model-cache
             mountDir: ${vars.localModelCache}
-          - serverAddr: ${vars.nasServerAddr-0}
+          - serverAddr: ${vars.nasServerAddr-7}
             mountDir: ${vars.CommDir}
       customContainerConfig:
         image: registry.cn-shanghai.aliyuncs.com/image_lch/modelscope-vllm:v1
@@ -247,12 +243,11 @@ resources:
       initializationTimeout: 300
       internetAccess: true
       vpcConfig: ${vars.vpcConfig}
-      logConfig: ${vars.logConfig}
       nasConfig:
         mountPoints:
           - serverAddr: ${vars.nasServerAddr-6}model-cache
             mountDir: ${vars.localModelCache}
-          - serverAddr: ${vars.nasServerAddr-0}
+          - serverAddr: ${vars.nasServerAddr-7}
             mountDir: ${vars.CommDir}
       customContainerConfig:
         image: registry.cn-shanghai.aliyuncs.com/image_lch/modelscope-vllm:v1
@@ -303,9 +298,8 @@ resources:
         mountPoints:
           - serverAddr: ${vars.nasServerAddr-5}model-cache
             mountDir: ${vars.localModelCache}
-          - serverAddr: ${vars.nasServerAddr-0}
+          - serverAddr: ${vars.nasServerAddr-7}
             mountDir: ${vars.CommDir}
-      logConfig: ${vars.logConfig}
       customContainerConfig:
         image: registry.cn-shanghai.aliyuncs.com/image_lch/modelscope-vllm:v1
         port: 9000
@@ -351,12 +345,11 @@ resources:
       initializationTimeout: 300
       internetAccess: true
       vpcConfig: ${vars.vpcConfig}
-      logConfig: ${vars.logConfig}
       nasConfig: 
         mountPoints:
           - serverAddr: ${vars.nasServerAddr-4}model-cache
             mountDir: ${vars.localModelCache}
-          - serverAddr: ${vars.nasServerAddr-0}
+          - serverAddr: ${vars.nasServerAddr-7}
             mountDir: ${vars.CommDir}
       customContainerConfig:
         image: registry.cn-shanghai.aliyuncs.com/image_lch/modelscope-vllm:v1
@@ -403,12 +396,11 @@ resources:
       initializationTimeout: 300
       internetAccess: true
       vpcConfig: ${vars.vpcConfig}
-      logConfig: ${vars.logConfig}
       nasConfig:
         mountPoints:
           - serverAddr: ${vars.nasServerAddr-3}model-cache
             mountDir: ${vars.localModelCache}
-          - serverAddr: ${vars.nasServerAddr-0}
+          - serverAddr: ${vars.nasServerAddr-7}
             mountDir: ${vars.CommDir}
       customContainerConfig:
         image: registry.cn-shanghai.aliyuncs.com/image_lch/modelscope-vllm:v1
@@ -455,12 +447,11 @@ resources:
       initializationTimeout: 300
       internetAccess: true
       vpcConfig: ${vars.vpcConfig}
-      logConfig: ${vars.logConfig}
       nasConfig:
         mountPoints:
           - serverAddr: ${vars.nasServerAddr-2}model-cache
             mountDir: ${vars.localModelCache}
-          - serverAddr: ${vars.nasServerAddr-0}
+          - serverAddr: ${vars.nasServerAddr-7}
             mountDir: ${vars.CommDir}
       customContainerConfig:
         image: registry.cn-shanghai.aliyuncs.com/image_lch/modelscope-vllm:v1
@@ -511,9 +502,8 @@ resources:
         mountPoints:
           - serverAddr: ${vars.nasServerAddr-1}model-cache
             mountDir: ${vars.localModelCache}
-          - serverAddr: ${vars.nasServerAddr-0}
+          - serverAddr: ${vars.nasServerAddr-7}
             mountDir: ${vars.CommDir}
-      logConfig: ${vars.logConfig}
       customContainerConfig:
         image: registry.cn-shanghai.aliyuncs.com/image_lch/modelscope-vllm:v1
         port: 9000
@@ -559,23 +549,24 @@ resources:
       initializationTimeout: 300
       internetAccess: true
       vpcConfig: ${vars.vpcConfig}
-      logConfig: ${vars.logConfig}
       nasConfig: 
         mountPoints:
-          - serverAddr: ${vars.nasServerAddr-0}
+          - serverAddr: ${vars.nasServerAddr-0}model-cache
             mountDir: ${vars.localModelCache}
+          - serverAddr: ${vars.nasServerAddr-7}
+            mountDir: ${vars.CommDir}
       customContainerConfig:
         image: registry.cn-shanghai.aliyuncs.com/image_lch/modelscope-vllm:v1
         port: 9000
       environmentVariables:
         MODEL_ID: ${vars.modelID}
-        MODELSCOPE_CACHE: ${vars.localModelCache}/model-cache
+        MODELSCOPE_CACHE: ${vars.localModelCache}
         TASK: ${vars.modelTask}
         PP_RANK: '0'
         PP_SIZE: ${vars.ppSize}
         DEST_PP_SIZE: ${vars.destppSize}
         FUNC_NAME_BASE: ${vars.name}-model-app-func
-        COMM_DIR: ${vars.localModelCache}
+        COMM_DIR: ${vars.CommDir}
       triggers:
         - triggerName: httpTrigger
           triggerType: http
@@ -603,7 +594,6 @@ resources:
       code: ./model_ui
       instanceConcurrency: ${vars.concurrency}
       internetAccess: true
-      logConfig: auto
       environmentVariables:
         MODEL_ID: ${vars.modelID}
         MODEL_VERSION: ${vars.modelRevision}

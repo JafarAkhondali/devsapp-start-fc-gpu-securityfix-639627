@@ -268,7 +268,7 @@ Outputs:
             - Modelscope-MOUNT-TARGET-2
             - MountTargetDomain
         - "Fn::GetAtt":
-            - Modelscope-MOUNT-TARGET-1     # use address of mount target 1 in default
+            - !Join ['-', [Modelscope-MOUNT-TARGET,!Ref FuncNumber]] # use mount target of last stage in default
             - MountTargetDomain
   MT3:
     Value:
@@ -278,7 +278,7 @@ Outputs:
             - Modelscope-MOUNT-TARGET-3
             - MountTargetDomain
         - "Fn::GetAtt":
-            - Modelscope-MOUNT-TARGET-1     # use address of mount target 1 in default
+            - !Join ['-', [Modelscope-MOUNT-TARGET,!Ref FuncNumber]] # use mount target of last stage in default
             - MountTargetDomain
   MT4:
     Value:
@@ -288,7 +288,7 @@ Outputs:
             - Modelscope-MOUNT-TARGET-4
             - MountTargetDomain
         - "Fn::GetAtt":
-            - Modelscope-MOUNT-TARGET-1     # use address of mount target 1 in default
+            - !Join ['-', [Modelscope-MOUNT-TARGET,!Ref FuncNumber]] # use mount target of last stage in default
             - MountTargetDomain
   MT5:
     Value:
@@ -298,7 +298,7 @@ Outputs:
             - Modelscope-MOUNT-TARGET-5
             - MountTargetDomain
         - "Fn::GetAtt":
-            - Modelscope-MOUNT-TARGET-1     # use address of mount target 1 in default
+            - !Join ['-', [Modelscope-MOUNT-TARGET,!Ref FuncNumber]] # use mount target of last stage in default
             - MountTargetDomain
   MT6:
     Value:
@@ -308,7 +308,7 @@ Outputs:
             - Modelscope-MOUNT-TARGET-6
             - MountTargetDomain
         - "Fn::GetAtt":
-            - Modelscope-MOUNT-TARGET-1     # use address of mount target 1 in default
+            - !Join ['-', [Modelscope-MOUNT-TARGET,!Ref FuncNumber]] # use mount target of last stage in default
             - MountTargetDomain
   MT7:
     Value:
@@ -318,7 +318,7 @@ Outputs:
             - Modelscope-MOUNT-TARGET-7
             - MountTargetDomain
         - "Fn::GetAtt":
-            - Modelscope-MOUNT-TARGET-1     # use address of mount target 1 in default
+            - !Join ['-', [Modelscope-MOUNT-TARGET,!Ref FuncNumber]] # use mount target of last stage in default
             - MountTargetDomain
   MT8:
     Value:
@@ -328,5 +328,5 @@ Outputs:
             - Modelscope-MOUNT-TARGET-8
             - MountTargetDomain
         - "Fn::GetAtt":
-            - Modelscope-MOUNT-TARGET-1     # use address of mount target 1 in default
+            - !Join ['-', [Modelscope-MOUNT-TARGET,!Ref FuncNumber]] # use mount target of last stage in default
             - MountTargetDomain

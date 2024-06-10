@@ -8,6 +8,7 @@ import sys
 import shutil
 import psutil
 import gc
+import json
 from safetensors.torch import save_file
 
 def get_current_memory_gb():
@@ -242,16 +243,19 @@ def partition(model_path: str, pp_size: int, dest_pp_size, model_part: int):
             _tied_weights_keys = model._tied_weights_keys
         split_state_dict = {}
         dest_split_state_dict = {}
+        duplicate_state_dict = {}
         state_dict = model.state_dict()
         for key, value in state_dict.items():
             # get normal split state dict
             new_id, new_key = transform(key, layers, _tied_weights_keys)
             if isinstance(new_id, int):
                 new_id = [new_id]
+            split_state_dict_key = None
             for id_ in new_id:
                 if id_ == id:
                     print("{}: {}, use new key = {}".format(new_id, key, new_key))
                     split_state_dict[new_key] = value
+                    split_state_dict_key = new_key
                     break
             # get dest split state dict
             if id < dest_pp_size and dest_pp_size < pp_size:
@@ -261,7 +265,10 @@ def partition(model_path: str, pp_size: int, dest_pp_size, model_part: int):
                 for id_ in dest_new_id:
                     if id_ == id:
                         print("{}: {}, use new key = {}".format(dest_new_id, key, dest_new_key))
-                        dest_split_state_dict[dest_new_key] = value
+                        if split_state_dict_key is not None:
+                            duplicate_state_dict[dest_new_key] = split_state_dict_key
+                        else:
+                            dest_split_state_dict[dest_new_key] = value
                         break
 
         # delete all other state dicts so that we have enough memory for current state_dict
@@ -274,7 +281,10 @@ def partition(model_path: str, pp_size: int, dest_pp_size, model_part: int):
         save_file(split_state_dict, model_path_ + "/model.safetensors")
         print(f"model saved to {model_path_}!")
         if id < dest_pp_size and dest_pp_size < pp_size:
-            save_file(dest_split_state_dict, model_path_ + "/dest_model.safetensors")
+            pp_tail = "-" + str(id) + "-" + str(dest_pp_size)
+            save_file(dest_split_state_dict, model_path_ + "/dest_model" + pp_tail + ".safetensors")
+            with open(model_path_ + "/duplicate_state_dict" + pp_tail + ".json", "w") as f:
+                json.dump(duplicate_state_dict, f)
             print(f"dest model saved to {model_path_}!")
         if id < end_pp_rank:
             # load model for next id
@@ -329,11 +339,17 @@ def handler(event, context):
         flag2 = True
     else:
         # check that dest model is in stage 0
-        model_path = cache_dir + "-0/" + model_id.replace('.', '___') + "-0-" + str(pp_size)
-        if os.path.exists(model_path):
-            items = os.listdir(model_path)
+        max_pp_size = dest_pp_size
+        if model_part == 0 and max_pp_size > 4:
+            max_pp_size = 4
+        model_path = cache_dir + "-" + str(max_pp_size - 1) + "/" + model_id.replace('.', '___')
+        pp_tail = ""
+        if max_pp_size > 1:
+            pp_tail = "-" + str(max_pp_size - 1) + "-" + str(pp_size)
+        if os.path.exists(model_path + pp_tail):
+            items = os.listdir(model_path + pp_tail)
             for item in items:
-                if item == 'dest_model.safetensors':
+                if item == 'dest_model-' + str(max_pp_size - 1) + '-' + str(dest_pp_size) + '.safetensors':
                     flag2 = True
                     break
     if flag1 and flag2:
