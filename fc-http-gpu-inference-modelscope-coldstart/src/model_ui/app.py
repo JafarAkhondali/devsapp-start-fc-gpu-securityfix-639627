@@ -30,6 +30,8 @@ print("[debug] model_revision=", model_revision)
 print("[debug] model_task=", model_task)
 print("[debug] api_url=", api_url)
 
+model_id = model_id.replace('.', '___')
+
 if model_task == None or len(model_task) == 0:
     gr.Warning("Missing necessary model task")
 if api_url == None or len(api_url) == 0:
@@ -97,6 +99,7 @@ def chat_setup():
         )
         reply = chat.choices[0].message.content
         elpased = time.time() - start_time
+        print(f"messages = {messages}")
         print(f"reply = {reply}")
         print(f"generation finished, time cost = {elpased} seconds")
         messages.append({"role": "assistant", "content": reply})

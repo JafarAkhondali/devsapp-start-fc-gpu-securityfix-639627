@@ -24,87 +24,48 @@ vars: # 全局变量
   localModelCache: /mnt/model-cache
   CommDir: /mnt/comm
   vpcConfig:
-    vpcId: ${resources.vpc-ros-stack.output.VpcID}
-    securityGroupId: ${resources.sec-switch-ros-stack.output.securityGroupId}
+    vpcId: ${resources.modelscope-stack.output.VpcID}
+    securityGroupId: ${resources.modelscope-stack.output.securityGroupId}
     vSwitchIds:
-      - ${resources.sec-switch-ros-stack.output.switchId}
-  nasServerAddr-0: ${resources.mount-ros-stack.output.MT1}:/
-  nasServerAddr-1: ${resources.mount-ros-stack.output.MT2}:/
-  nasServerAddr-2: ${resources.mount-ros-stack.output.MT3}:/
-  nasServerAddr-3: ${resources.mount-ros-stack.output.MT4}:/
-  nasServerAddr-4: ${resources.mount-ros-stack.output.MT5}:/
-  nasServerAddr-5: ${resources.mount-ros-stack.output.MT6}:/
-  nasServerAddr-6: ${resources.mount-ros-stack.output.MT7}:/
-  nasServerAddr-7: ${resources.mount-ros-stack.output.MT8}:/
+      - ${resources.modelscope-stack.output.switchId}
+  nasServerAddr-0: ${resources.modelscope-stack.output.MT1}:/
+  nasServerAddr-1: ${resources.modelscope-stack.output.MT2}:/
+  nasServerAddr-2: ${resources.modelscope-stack.output.MT3}:/
+  nasServerAddr-3: ${resources.modelscope-stack.output.MT4}:/
+  nasServerAddr-4: ${resources.modelscope-stack.output.MT5}:/
+  nasServerAddr-5: ${resources.modelscope-stack.output.MT6}:/
+  nasServerAddr-6: ${resources.modelscope-stack.output.MT7}:/
+  nasServerAddr-7: ${resources.modelscope-stack.output.MT8}:/
 
 resources:
-  vpc-ros-stack:
+  modelscope-stack:
     component: ros
     props:
       region: ${vars.region}
-      name: modelscope-vpc-ros-stack
-      template: ./vpc_ros_template.yaml
-  sec-switch-ros-stack:
-    component: ros
-    props:
-      region: ${vars.region}
-      name: modelscope-sec-switch-ros-stack
-      template: ./sec_switch_ros_template.yaml
+      name: modelscope-stack
+      template: ./modelscope_stack_template.yaml
       parameters:
-        VpcID: ${resources.vpc-ros-stack.output.VpcID}
-        ZoneID: ${resources.vpc-ros-stack.output.ZoneID}
-  nas-ros-stack:
-    component: ros
-    props:
-      region: ${vars.region}
-      name: modelscope-nas-ros-stack
-      template: ./nas_ros_template.yaml
-      parameters:
-        ZoneID: ${resources.vpc-ros-stack.output.ZoneID}
-        FuncNumber: ${vars.ppSize}
-  mount-ros-stack:
-    component: ros
-    props:
-      region: ${vars.region}
-      name: modelscope-mount-ros-stack
-      template: ./mount_ros_template.yaml
-      parameters:
-        FileSystemId1: ${resources.nas-ros-stack.output.NASId1}
-        FileSystemId2: ${resources.nas-ros-stack.output.NASId2}
-        FileSystemId3: ${resources.nas-ros-stack.output.NASId3}
-        FileSystemId4: ${resources.nas-ros-stack.output.NASId4}
-        FileSystemId5: ${resources.nas-ros-stack.output.NASId5}
-        FileSystemId6: ${resources.nas-ros-stack.output.NASId6}
-        FileSystemId7: ${resources.nas-ros-stack.output.NASId7}
-        FileSystemId8: ${resources.nas-ros-stack.output.NASId8}
-        VSwitchId: ${resources.sec-switch-ros-stack.output.switchId}
-        VpcId: ${resources.vpc-ros-stack.output.VpcID}
-        SecurityGroupId: ${resources.sec-switch-ros-stack.output.securityGroupId}
         FuncNumber: ${vars.ppSize}
   model_download_func_0:
     component: 'fc3'
     actions:
       complete-deploy:
-        - component: fc3@0.0.23 invoke
+        - component: fc3 invoke
     props:
       region: ${vars.region}
       role: ${vars.role}
       functionName: ${vars.name}-model-download-func-0
       description: initialize model into nas storage
-      handler: index.handler
       timeout: 86400
       memorySize: 32768
       cpu: 8
       diskSize: 10240
-      instanceType: e1
       instanceConcurrency: 1
-      runtime: python3.10
-      layers:
-        - acs:fc:cn-shanghai:official:layers/Python310-PyTorch2x/versions/1
-        - acs:fc:cn-shanghai:1142606162421667:layers/modelscope/versions/4
-        - acs:fc:cn-shanghai:1142606162421667:layers/python_accelerate/versions/2
-      code: ./model_download
+      runtime: custom-container
       internetAccess: true
+      customContainerConfig:
+        image: registry.${vars.region}.aliyuncs.com/aliyun-fc/fc-modelscope-coldstart-download:v1
+        port: 9000
       vpcConfig: ${vars.vpcConfig}
       nasConfig:
         mountPoints:
@@ -125,30 +86,38 @@ resources:
         PP_SIZE: ${vars.ppSize}
         DEST_PP_SIZE: ${vars.destppSize}
         MODEL_PART: "0"
+      triggers:
+        - triggerName: httpTrigger
+          triggerType: http
+          description: 'httpTriggerModel'
+          qualifier: LATEST
+          triggerConfig:
+            authType: anonymous
+            disableURLInternet: false
+            methods:
+              - GET
+              - POST
+              - PUT
   model_download_func_1:
     component: 'fc3'
     actions:
       complete-deploy:
-        - component: fc3@0.0.23 invoke
+        - component: fc3 invoke
     props:
       region: ${vars.region}
       role: ${vars.role}
       functionName: ${vars.name}-model-download-func-1
       description: initialize model into nas storage
-      handler: index.handler
       timeout: 86400
       memorySize: 32768
       cpu: 8
       diskSize: 10240
-      instanceType: e1
       instanceConcurrency: 1
-      runtime: python3.10
-      layers:
-        - acs:fc:cn-shanghai:official:layers/Python310-PyTorch2x/versions/1
-        - acs:fc:cn-shanghai:1142606162421667:layers/modelscope/versions/4
-        - acs:fc:cn-shanghai:1142606162421667:layers/python_accelerate/versions/2
-      code: ./model_download
+      runtime: custom-container
       internetAccess: true
+      customContainerConfig:
+        image: registry.${vars.region}.aliyuncs.com/aliyun-fc/fc-modelscope-coldstart-download:v1
+        port: 9000
       vpcConfig: ${vars.vpcConfig}
       nasConfig:
         mountPoints:
@@ -171,14 +140,25 @@ resources:
         PP_SIZE: ${vars.ppSize}
         DEST_PP_SIZE: ${vars.destppSize}
         MODEL_PART: "1"
+      triggers:
+        - triggerName: httpTrigger
+          triggerType: http
+          description: 'httpTriggerModel'
+          qualifier: LATEST
+          triggerConfig:
+            authType: anonymous
+            disableURLInternet: false
+            methods:
+              - GET
+              - POST
+              - PUT
   app_func_7:
     component: 'fc3'
     props:
       region: ${vars.region}
       role: ${vars.role}
-      functionName: ${vars.name}-model-app-func${resources.nas-ros-stack.output.funcTail8}
+      functionName: ${vars.name}-model-app-func${resources.modelscope-stack.output.funcTail8}
       description: Deploy ModelScope applications of model (stage 7)
-      handler: /usr/src/app/app.handler
       timeout: 1800
       memorySize: ${vars.memorySize}
       cpu: ${vars.vCPU}
@@ -199,7 +179,7 @@ resources:
           - serverAddr: ${vars.nasServerAddr-7}
             mountDir: ${vars.CommDir}
       customContainerConfig:
-        image: registry.cn-shanghai.aliyuncs.com/image_lch/modelscope-vllm:v1
+        image: registry.${vars.region}.aliyuncs.com/aliyun-fc/fc-modelscope-coldstart:v1
         port: 9000
       environmentVariables:
         MODEL_ID: ${vars.modelID}
@@ -227,9 +207,8 @@ resources:
     props:
       region: ${vars.region}
       role: ${vars.role}
-      functionName: ${vars.name}-model-app-func${resources.nas-ros-stack.output.funcTail7}
+      functionName: ${vars.name}-model-app-func${resources.modelscope-stack.output.funcTail7}
       description: Deploy ModelScope applications of model (stage 6)
-      handler: /usr/src/app/app.handler
       timeout: 1800
       memorySize: ${vars.memorySize}
       cpu: ${vars.vCPU}
@@ -250,7 +229,7 @@ resources:
           - serverAddr: ${vars.nasServerAddr-7}
             mountDir: ${vars.CommDir}
       customContainerConfig:
-        image: registry.cn-shanghai.aliyuncs.com/image_lch/modelscope-vllm:v1
+        image: registry.${vars.region}.aliyuncs.com/aliyun-fc/fc-modelscope-coldstart:v1
         port: 9000
       environmentVariables:
         MODEL_ID: ${vars.modelID}
@@ -278,9 +257,8 @@ resources:
     props:
       region: ${vars.region}
       role: ${vars.role}
-      functionName: ${vars.name}-model-app-func${resources.nas-ros-stack.output.funcTail6}
+      functionName: ${vars.name}-model-app-func${resources.modelscope-stack.output.funcTail6}
       description: Deploy ModelScope applications of model (stage 5)
-      handler: /usr/src/app/app.handler
       timeout: 1800
       memorySize: ${vars.memorySize}
       cpu: ${vars.vCPU}
@@ -301,7 +279,7 @@ resources:
           - serverAddr: ${vars.nasServerAddr-7}
             mountDir: ${vars.CommDir}
       customContainerConfig:
-        image: registry.cn-shanghai.aliyuncs.com/image_lch/modelscope-vllm:v1
+        image: registry.${vars.region}.aliyuncs.com/aliyun-fc/fc-modelscope-coldstart:v1
         port: 9000
       environmentVariables:
         MODEL_ID: ${vars.modelID}
@@ -329,9 +307,8 @@ resources:
     props:
       region: ${vars.region}
       role: ${vars.role}
-      functionName: ${vars.name}-model-app-func${resources.nas-ros-stack.output.funcTail5}
+      functionName: ${vars.name}-model-app-func${resources.modelscope-stack.output.funcTail5}
       description: Deploy ModelScope applications of model (stage 4)
-      handler: /usr/src/app/app.handler
       timeout: 1800
       memorySize: ${vars.memorySize}
       cpu: ${vars.vCPU}
@@ -352,7 +329,7 @@ resources:
           - serverAddr: ${vars.nasServerAddr-7}
             mountDir: ${vars.CommDir}
       customContainerConfig:
-        image: registry.cn-shanghai.aliyuncs.com/image_lch/modelscope-vllm:v1
+        image: registry.${vars.region}.aliyuncs.com/aliyun-fc/fc-modelscope-coldstart:v1
         port: 9000
       environmentVariables:
         MODEL_ID: ${vars.modelID}
@@ -380,9 +357,8 @@ resources:
     props:
       region: ${vars.region}
       role: ${vars.role}
-      functionName: ${vars.name}-model-app-func${resources.nas-ros-stack.output.funcTail4}
+      functionName: ${vars.name}-model-app-func${resources.modelscope-stack.output.funcTail4}
       description: Deploy ModelScope applications of model (stage 3)
-      handler: /usr/src/app/app.handler
       timeout: 1800
       memorySize: ${vars.memorySize}
       cpu: ${vars.vCPU}
@@ -403,7 +379,7 @@ resources:
           - serverAddr: ${vars.nasServerAddr-7}
             mountDir: ${vars.CommDir}
       customContainerConfig:
-        image: registry.cn-shanghai.aliyuncs.com/image_lch/modelscope-vllm:v1
+        image: registry.${vars.region}.aliyuncs.com/aliyun-fc/fc-modelscope-coldstart:v1
         port: 9000
       environmentVariables:
         MODEL_ID: ${vars.modelID}
@@ -431,9 +407,8 @@ resources:
     props:
       region: ${vars.region}
       role: ${vars.role}
-      functionName: ${vars.name}-model-app-func${resources.nas-ros-stack.output.funcTail3}
+      functionName: ${vars.name}-model-app-func${resources.modelscope-stack.output.funcTail3}
       description: Deploy ModelScope applications of model (stage 2)
-      handler: /usr/src/app/app.handler
       timeout: 1800
       memorySize: ${vars.memorySize}
       cpu: ${vars.vCPU}
@@ -454,7 +429,7 @@ resources:
           - serverAddr: ${vars.nasServerAddr-7}
             mountDir: ${vars.CommDir}
       customContainerConfig:
-        image: registry.cn-shanghai.aliyuncs.com/image_lch/modelscope-vllm:v1
+        image: registry.${vars.region}.aliyuncs.com/aliyun-fc/fc-modelscope-coldstart:v1
         port: 9000
       environmentVariables:
         MODEL_ID: ${vars.modelID}
@@ -482,9 +457,8 @@ resources:
     props:
       region: ${vars.region}
       role: ${vars.role}
-      functionName: ${vars.name}-model-app-func${resources.nas-ros-stack.output.funcTail2}
+      functionName: ${vars.name}-model-app-func${resources.modelscope-stack.output.funcTail2}
       description: Deploy ModelScope applications of model (stage 1)
-      handler: /usr/src/app/app.handler
       timeout: 1800
       memorySize: ${vars.memorySize}
       cpu: ${vars.vCPU}
@@ -505,7 +479,7 @@ resources:
           - serverAddr: ${vars.nasServerAddr-7}
             mountDir: ${vars.CommDir}
       customContainerConfig:
-        image: registry.cn-shanghai.aliyuncs.com/image_lch/modelscope-vllm:v1
+        image: registry.${vars.region}.aliyuncs.com/aliyun-fc/fc-modelscope-coldstart:v1
         port: 9000
       environmentVariables:
         MODEL_ID: ${vars.modelID}
@@ -535,7 +509,6 @@ resources:
       role: ${vars.role}
       functionName: ${vars.name}-model-app-func-0
       description: Deploy ModelScope applications of model (stage 0)
-      handler: /usr/src/app/app.handler
       timeout: 1800
       memorySize: ${vars.memorySize}
       cpu: ${vars.vCPU}
@@ -556,7 +529,7 @@ resources:
           - serverAddr: ${vars.nasServerAddr-7}
             mountDir: ${vars.CommDir}
       customContainerConfig:
-        image: registry.cn-shanghai.aliyuncs.com/image_lch/modelscope-vllm:v1
+        image: registry.${vars.region}.aliyuncs.com/aliyun-fc/fc-modelscope-coldstart:v1
         port: 9000
       environmentVariables:
         MODEL_ID: ${vars.modelID}
@@ -618,7 +591,7 @@ resources:
         port: 7860
       layers:
         - acs:fc:${vars.region}:official:layers/Python39/versions/2
-        - acs:fc:cn-shanghai:1142606162421667:layers/python39-gradio/versions/4
+        - acs:fc:${vars.region}:1431999136518149:layers/Python39-Gradio/versions/1
       triggers:
         - triggerName: httpTrigger
           triggerType: http

@@ -1,0 +1,477 @@
+ROSTemplateFormatVersion: "2015-09-01"
+Parameters:
+  FuncNumber:
+    Type: String
+    Description: function number
+Conditions:
+  hasFunc2:
+    Fn::Or:
+      - Fn::Equals:
+        - Ref: FuncNumber
+        - "2"
+      - Fn::Equals:
+        - Ref: FuncNumber
+        - "3"
+      - Fn::Equals:
+        - Ref: FuncNumber
+        - "4"
+      - Fn::Equals:
+        - Ref: FuncNumber
+        - "5"
+      - Fn::Equals:
+        - Ref: FuncNumber
+        - "6"
+      - Fn::Equals:
+        - Ref: FuncNumber
+        - "7"
+      - Fn::Equals:
+        - Ref: FuncNumber
+        - "8"
+  hasFunc3:
+    Fn::Or:
+      - Fn::Equals:
+        - Ref: FuncNumber
+        - "3"
+      - Fn::Equals:
+        - Ref: FuncNumber
+        - "4"
+      - Fn::Equals:
+        - Ref: FuncNumber
+        - "5"
+      - Fn::Equals:
+        - Ref: FuncNumber
+        - "6"
+      - Fn::Equals:
+        - Ref: FuncNumber
+        - "7"
+      - Fn::Equals:
+        - Ref: FuncNumber
+        - "8"
+  hasFunc4:
+    Fn::Or:
+      - Fn::Equals:
+        - Ref: FuncNumber
+        - "4"
+      - Fn::Equals:
+        - Ref: FuncNumber
+        - "5"
+      - Fn::Equals:
+        - Ref: FuncNumber
+        - "6"
+      - Fn::Equals:
+        - Ref: FuncNumber
+        - "7"
+      - Fn::Equals:
+        - Ref: FuncNumber
+        - "8"
+  hasFunc5:
+    Fn::Or:
+      - Fn::Equals:
+        - Ref: FuncNumber
+        - "5"
+      - Fn::Equals:
+        - Ref: FuncNumber
+        - "6"
+      - Fn::Equals:
+        - Ref: FuncNumber
+        - "7"
+      - Fn::Equals:
+        - Ref: FuncNumber
+        - "8"
+  hasFunc6:
+    Fn::Or:
+      - Fn::Equals:
+        - Ref: FuncNumber
+        - "6"
+      - Fn::Equals:
+        - Ref: FuncNumber
+        - "7"
+      - Fn::Equals:
+        - Ref: FuncNumber
+        - "8"
+  hasFunc7:
+    Fn::Or:
+      - Fn::Equals:
+        - Ref: FuncNumber
+        - "7"
+      - Fn::Equals:
+        - Ref: FuncNumber
+        - "8"
+  hasFunc8:
+    Fn::Equals:
+      - Ref: FuncNumber
+      - "8"
+Resources:
+  MY-VPC:
+    Type: "ALIYUN::ECS::VPC"
+    Properties:
+      VpcName: modelscope-vpc
+  MY-Zone:
+    Type: "DATASOURCE::NAS::Zones"
+    Properties:
+      FileSystemType: standard
+  MY-SEC:
+    Type: "ALIYUN::ECS::SecurityGroup"
+    DependsOn: MY-VPC
+    Properties:
+      SecurityGroupName: modelscope-security-group
+      SecurityGroupType: normal
+      VpcId: !Ref MY-VPC
+  MY-SWITCH:
+    Type: "ALIYUN::ECS::VSwitch"
+    DependsOn:
+      - MY-VPC
+      - MY-Zone
+    Properties:
+      VSwitchName: modelscope-switch
+      CidrBlock: 172.16.0.0/16
+      ZoneId: !Select ['0', !Ref MY-Zone]
+      VpcId: !Ref MY-VPC
+  Modelscope-NAS-1:
+    Type: "ALIYUN::NAS::FileSystem"
+    DependsOn: MY-Zone
+    Properties:
+      FileSystemType: standard
+      ProtocolType: NFS
+      StorageType: Performance
+      EncryptType: 0
+      Capacity: 100
+      ZoneId: !Select ['0', !Ref MY-Zone]
+  Modelscope-NAS-2:
+    Type: "ALIYUN::NAS::FileSystem"
+    Condition: hasFunc2
+    DependsOn: MY-Zone
+    Properties:
+      FileSystemType: standard
+      ProtocolType: NFS
+      StorageType: Performance
+      EncryptType: 0
+      Capacity: 100
+      ZoneId: !Select ['0', !Ref MY-Zone]
+  Modelscope-NAS-3:
+    Type: "ALIYUN::NAS::FileSystem"
+    Condition: hasFunc3
+    DependsOn: MY-Zone
+    Properties:
+      FileSystemType: standard
+      ProtocolType: NFS
+      StorageType: Performance
+      EncryptType: 0
+      Capacity: 100
+      ZoneId: !Select ['0', !Ref MY-Zone]
+  Modelscope-NAS-4:
+    Type: "ALIYUN::NAS::FileSystem"
+    Condition: hasFunc4
+    DependsOn: MY-Zone
+    Properties:
+      FileSystemType: standard
+      ProtocolType: NFS
+      StorageType: Performance
+      EncryptType: 0
+      Capacity: 100
+      ZoneId: !Select ['0', !Ref MY-Zone]
+  Modelscope-NAS-5:
+    Type: "ALIYUN::NAS::FileSystem"
+    Condition: hasFunc5
+    DependsOn: MY-Zone
+    Properties:
+      FileSystemType: standard
+      ProtocolType: NFS
+      StorageType: Performance
+      EncryptType: 0
+      Capacity: 100
+      ZoneId: !Select ['0', !Ref MY-Zone]
+  Modelscope-NAS-6:
+    Type: "ALIYUN::NAS::FileSystem"
+    Condition: hasFunc6
+    DependsOn: MY-Zone
+    Properties:
+      FileSystemType: standard
+      ProtocolType: NFS
+      StorageType: Performance
+      EncryptType: 0
+      Capacity: 100
+      ZoneId: !Select ['0', !Ref MY-Zone]
+  Modelscope-NAS-7:
+    Type: "ALIYUN::NAS::FileSystem"
+    Condition: hasFunc7
+    DependsOn: MY-Zone
+    Properties:
+      FileSystemType: standard
+      ProtocolType: NFS
+      StorageType: Performance
+      EncryptType: 0
+      Capacity: 100
+      ZoneId: !Select ['0', !Ref MY-Zone]
+  Modelscope-NAS-8:
+    Type: "ALIYUN::NAS::FileSystem"
+    Condition: hasFunc8
+    DependsOn: MY-Zone
+    Properties:
+      FileSystemType: standard
+      ProtocolType: NFS
+      StorageType: Performance
+      EncryptType: 0
+      Capacity: 100
+      ZoneId: !Select ['0', !Ref MY-Zone]
+  Modelscope-MOUNT-TARGET-1:
+    Type: "ALIYUN::NAS::MountTarget"
+    DependsOn:
+      - MY-VPC
+      - MY-SWITCH
+      - MY-SEC
+      - Modelscope-NAS-1
+    Properties:
+      FileSystemId: !Ref Modelscope-NAS-1
+      AccessGroupName: DEFAULT_VPC_GROUP_NAME
+      VSwitchId: !Ref MY-SWITCH
+      VpcId: !Ref MY-VPC
+      Status: Active
+      SecurityGroupId: !Ref MY-SEC
+      NetworkType: Vpc
+  Modelscope-MOUNT-TARGET-2:
+    Type: "ALIYUN::NAS::MountTarget"
+    Condition: hasFunc2
+    DependsOn:
+      - MY-VPC
+      - MY-SWITCH
+      - MY-SEC
+      - Modelscope-NAS-2
+    Properties:
+      FileSystemId: !Ref Modelscope-NAS-2
+      AccessGroupName: DEFAULT_VPC_GROUP_NAME
+      VSwitchId: !Ref MY-SWITCH
+      VpcId: !Ref MY-VPC
+      Status: Active
+      SecurityGroupId: !Ref MY-SEC
+      NetworkType: Vpc
+  Modelscope-MOUNT-TARGET-3:
+    Type: "ALIYUN::NAS::MountTarget"
+    Condition: hasFunc3
+    DependsOn:
+      - MY-VPC
+      - MY-SWITCH
+      - MY-SEC
+      - Modelscope-NAS-3
+    Properties:
+      FileSystemId: !Ref Modelscope-NAS-3
+      AccessGroupName: DEFAULT_VPC_GROUP_NAME
+      VSwitchId: !Ref MY-SWITCH
+      VpcId: !Ref MY-VPC
+      Status: Active
+      SecurityGroupId: !Ref MY-SEC
+      NetworkType: Vpc
+  Modelscope-MOUNT-TARGET-4:
+    Type: "ALIYUN::NAS::MountTarget"
+    Condition: hasFunc4
+    DependsOn:
+      - MY-VPC
+      - MY-SWITCH
+      - MY-SEC
+      - Modelscope-NAS-4
+    Properties:
+      FileSystemId: !Ref Modelscope-NAS-4
+      AccessGroupName: DEFAULT_VPC_GROUP_NAME
+      VSwitchId: !Ref MY-SWITCH
+      VpcId: !Ref MY-VPC
+      Status: Active
+      SecurityGroupId: !Ref MY-SEC
+      NetworkType: Vpc
+  Modelscope-MOUNT-TARGET-5:
+    Type: "ALIYUN::NAS::MountTarget"
+    Condition: hasFunc5
+    DependsOn:
+      - MY-VPC
+      - MY-SWITCH
+      - MY-SEC
+      - Modelscope-NAS-5
+    Properties:
+      FileSystemId: !Ref Modelscope-NAS-5
+      AccessGroupName: DEFAULT_VPC_GROUP_NAME
+      VSwitchId: !Ref MY-SWITCH
+      VpcId: !Ref MY-VPC
+      Status: Active
+      SecurityGroupId: !Ref MY-SEC
+      NetworkType: Vpc
+  Modelscope-MOUNT-TARGET-6:
+    Type: "ALIYUN::NAS::MountTarget"
+    Condition: hasFunc6
+    DependsOn:
+      - MY-VPC
+      - MY-SWITCH
+      - MY-SEC
+      - Modelscope-NAS-6
+    Properties:
+      FileSystemId: !Ref Modelscope-NAS-6
+      AccessGroupName: DEFAULT_VPC_GROUP_NAME
+      VSwitchId: !Ref MY-SWITCH
+      VpcId: !Ref MY-VPC
+      Status: Active
+      SecurityGroupId: !Ref MY-SEC
+      NetworkType: Vpc
+  Modelscope-MOUNT-TARGET-7:
+    Type: "ALIYUN::NAS::MountTarget"
+    Condition: hasFunc7
+    DependsOn:
+      - MY-VPC
+      - MY-SWITCH
+      - MY-SEC
+      - Modelscope-NAS-7
+    Properties:
+      FileSystemId: !Ref Modelscope-NAS-7
+      AccessGroupName: DEFAULT_VPC_GROUP_NAME
+      VSwitchId: !Ref MY-SWITCH
+      VpcId: !Ref MY-VPC
+      Status: Active
+      SecurityGroupId: !Ref MY-SEC
+      NetworkType: Vpc
+  Modelscope-MOUNT-TARGET-8:
+    Type: "ALIYUN::NAS::MountTarget"
+    Condition: hasFunc8
+    DependsOn:
+      - MY-VPC
+      - MY-SWITCH
+      - MY-SEC
+      - Modelscope-NAS-8
+    Properties:
+      FileSystemId: !Ref Modelscope-NAS-8
+      AccessGroupName: DEFAULT_VPC_GROUP_NAME
+      VSwitchId: !Ref MY-SWITCH
+      VpcId: !Ref MY-VPC
+      Status: Active
+      SecurityGroupId: !Ref MY-SEC
+      NetworkType: Vpc
+Outputs:
+  VpcID:
+    Value:
+      "Fn::GetAtt":
+        - MY-VPC
+        - VpcId
+    Label: VPCID
+  securityGroupId:
+    Value:
+      "Fn::GetAtt":
+        - MY-SEC
+        - SecurityGroupId
+  switchId:
+    Value:
+      "Fn::GetAtt":
+        - MY-SWITCH
+        - VSwitchId
+  MT1:
+    Value:
+      "Fn::GetAtt":
+        - Modelscope-MOUNT-TARGET-1
+        - MountTargetDomain
+  MT2:
+    Value:
+      Fn::If:
+        - hasFunc2
+        - "Fn::GetAtt":
+            - Modelscope-MOUNT-TARGET-2
+            - MountTargetDomain
+        - "Fn::GetAtt":
+            - !Join ['-', [Modelscope-MOUNT-TARGET,!Ref FuncNumber]] # use mount target of last stage in default
+            - MountTargetDomain
+  MT3:
+    Value:
+      Fn::If:
+        - hasFunc3
+        - "Fn::GetAtt":
+            - Modelscope-MOUNT-TARGET-3
+            - MountTargetDomain
+        - "Fn::GetAtt":
+            - !Join ['-', [Modelscope-MOUNT-TARGET,!Ref FuncNumber]] # use mount target of last stage in default
+            - MountTargetDomain
+  MT4:
+    Value:
+      Fn::If:
+        - hasFunc4
+        - "Fn::GetAtt":
+            - Modelscope-MOUNT-TARGET-4
+            - MountTargetDomain
+        - "Fn::GetAtt":
+            - !Join ['-', [Modelscope-MOUNT-TARGET,!Ref FuncNumber]] # use mount target of last stage in default
+            - MountTargetDomain
+  MT5:
+    Value:
+      Fn::If:
+        - hasFunc5
+        - "Fn::GetAtt":
+            - Modelscope-MOUNT-TARGET-5
+            - MountTargetDomain
+        - "Fn::GetAtt":
+            - !Join ['-', [Modelscope-MOUNT-TARGET,!Ref FuncNumber]] # use mount target of last stage in default
+            - MountTargetDomain
+  MT6:
+    Value:
+      Fn::If:
+        - hasFunc6
+        - "Fn::GetAtt":
+            - Modelscope-MOUNT-TARGET-6
+            - MountTargetDomain
+        - "Fn::GetAtt":
+            - !Join ['-', [Modelscope-MOUNT-TARGET,!Ref FuncNumber]] # use mount target of last stage in default
+            - MountTargetDomain
+  MT7:
+    Value:
+      Fn::If:
+        - hasFunc7
+        - "Fn::GetAtt":
+            - Modelscope-MOUNT-TARGET-7
+            - MountTargetDomain
+        - "Fn::GetAtt":
+            - !Join ['-', [Modelscope-MOUNT-TARGET,!Ref FuncNumber]] # use mount target of last stage in default
+            - MountTargetDomain
+  MT8:
+    Value:
+      Fn::If:
+        - hasFunc8
+        - "Fn::GetAtt":
+            - Modelscope-MOUNT-TARGET-8
+            - MountTargetDomain
+        - "Fn::GetAtt":
+            - !Join ['-', [Modelscope-MOUNT-TARGET,!Ref FuncNumber]] # use mount target of last stage in default
+            - MountTargetDomain
+  funcTail2:    # actual name of function#2 (if pp_size < 2, let name be the same as function#1 so that the configuration of function #2 will be overrided)
+    Value:
+      Fn::If:
+        - hasFunc2
+        - "-1"
+        - "-0"
+  funcTail3:    # actual name of function#3
+    Value:
+      Fn::If:
+        - hasFunc3
+        - "-2"
+        - "-0"
+  funcTail4:    # actual name of function#4
+    Value:
+      Fn::If:
+        - hasFunc4
+        - "-3"
+        - "-0"
+  funcTail5:    # actual name of function#5
+    Value:
+      Fn::If:
+        - hasFunc5
+        - "-4"
+        - "-0"
+  funcTail6:    # actual name of function#6
+    Value:
+      Fn::If:
+        - hasFunc6
+        - "-5"
+        - "-0"
+  funcTail7:    # actual name of function#7
+    Value:
+      Fn::If:
+        - hasFunc7
+        - "-6"
+        - "-0"
+  funcTail8:    # actual name of function#8
+    Value:
+      Fn::If:
+        - hasFunc8
+        - "-7"
+        - "-0"
