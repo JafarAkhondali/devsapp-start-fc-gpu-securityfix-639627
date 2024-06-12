@@ -7,6 +7,9 @@ import base64
 import random
 import time
 import threading
+
+import sys
+sys.path.append('/code/python')
 from openai import OpenAI
 
 ## global variables inherited from env

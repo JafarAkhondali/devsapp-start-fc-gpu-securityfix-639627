@@ -554,6 +554,9 @@ resources:
               - PUT
   model_ui_func:
     component: 'fc3'
+    actions:
+      pre-deploy:
+        - component: fc3 build
     props:
       region: ${vars.region}
       role: ${vars.role}
