@@ -11,7 +11,7 @@ Type: Project
 Name: modelscope-coldstart
 Provider:
   - 阿里云 
-Version: 1.0.22
+Version: 1.0.23
 Description: ModelScope应用-快速启动
 HomePage: https://github.com/devsapp/modelscope-coldstart
 Tags:
@@ -44,6 +44,7 @@ Parameters:
     - modelId
     - modelRevision
     - funcNumber
+    - destFuncNumber
     # - gpuMemorySize
     # - memorySize
     # - modelCache
@@ -155,7 +156,7 @@ Parameters:
       default: "1"
       pattern: "^(1|2|3|4|5|6|7|8)$"
       description: 进行推理的函数个数，数量越多则冷启动越快，最多使用 8 个函数进行推理
-    DestfFuncNumber:
+    destFuncNumber:
       title: 热请求的推理函数个数
       type: string
       default: "1"

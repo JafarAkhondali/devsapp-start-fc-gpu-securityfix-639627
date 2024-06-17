@@ -7,6 +7,9 @@ import base64
 import random
 import time
 import threading
+
+import sys
+sys.path.append('/code/python')
 from openai import OpenAI
 
 ## global variables inherited from env
@@ -29,6 +32,8 @@ print("[debug] model_id=", model_id)
 print("[debug] model_revision=", model_revision)
 print("[debug] model_task=", model_task)
 print("[debug] api_url=", api_url)
+
+model_id = model_id.replace('.', '___')
 
 if model_task == None or len(model_task) == 0:
     gr.Warning("Missing necessary model task")
@@ -87,6 +92,9 @@ def chat_setup():
             raise gr.Error("Missing necessary input message, please retry.")
         do_warmup()
 
+        if len(history) == 0:
+            messages = []
+
         messages.append({"role": "user", "content": message})
         start_time = time.time()
         chat = client.chat.completions.create(
@@ -94,6 +102,7 @@ def chat_setup():
         )
         reply = chat.choices[0].message.content
         elpased = time.time() - start_time
+        print(f"messages = {messages}")
         print(f"reply = {reply}")
         print(f"generation finished, time cost = {elpased} seconds")
         messages.append({"role": "assistant", "content": reply})
