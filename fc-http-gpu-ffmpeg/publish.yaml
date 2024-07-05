@@ -3,7 +3,7 @@ Type: Project
 Name: fc3-http-gpu-ffmpeg
 Provider:
   - 阿里云
-Version: 0.0.1
+Version: 0.0.2
 Description: 快速演示阿里云函数计算GPU实例的GPU转码执行(fc3.0)
 HomePage: https://github.com/devsapp/start-fc-gpu/tree/v3
 Tags:
