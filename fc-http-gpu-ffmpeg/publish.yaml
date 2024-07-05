@@ -24,7 +24,7 @@ Parameters:
   required: # 必填项
     - region
     - functionName
-    - acr
+    - acrName
   properties:
     region:
       title: 地域
