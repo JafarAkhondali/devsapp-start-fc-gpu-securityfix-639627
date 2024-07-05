@@ -40,8 +40,13 @@ jobs:
       #    s registry login --token ${{ secrets.alibaba_registry_v3_publish_token }}
       #    s registry publish
       #  working-directory: fc-http-gpu-inference-modelscope-cv-ofa-visual-grounding-refcoco
-      - name: s registry login & publish fc-http-gpu-inference-modelscope-coldstart
+      #- name: s registry login & publish fc-http-gpu-inference-modelscope-coldstart
+      #  run: |
+      #    s registry login --token ${{ secrets.alibaba_registry_v3_publish_token }}
+      #    s registry publish
+        working-directory: fc-http-gpu-ffmpeg
+      - name: s registry login & publish fc-http-gpu-ffmpeg
         run: |
           s registry login --token ${{ secrets.alibaba_registry_v3_publish_token }}
           s registry publish
-        working-directory: fc-http-gpu-inference-modelscope-coldstart
+        working-directory: fc-http-gpu-ffmpeg
