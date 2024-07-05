@@ -44,4 +44,4 @@ Parameters:
     acrName:
       title: 镜像地址
       type: string
-      description: 请填写您的镜像仓库地址，构建后的镜像将推送到该仓库地址。例如: registry.cn-shanghai.aliyuncs.com/your_namespace/your_repo:your_tag
+      description: "镜像仓库地址，构建后的函数镜像将推送至您个人帐户的镜像仓库地址。例如: registry.cn-shanghai.aliyuncs.com/your_namespace/your_repo:your_tag"
